@@ -1,0 +1,31 @@
+---
+import BlogCard from "../../components/BlogCard.astro";
+import Layout from "../../layouts/Layout.astro";
+import { getArticlesByCategory, getCategoryBySlug } from "../../lib/wp";
+import "../../styles/global.css";
+import type { Post } from "../../types";
+
+const categorySlug = Astro.params.category; // 'category' because your file is named [category].astro
+if (!categorySlug) {
+  return Astro.redirect("/404");
+}
+
+// First, fetch the category details to get its ID
+const category = await getCategoryBySlug(categorySlug);
+
+// Then, use the category ID to fetch posts
+const posts = await getArticlesByCategory({
+  perPage: 3,
+  category: category.id,
+});
+const title = category.name; // Or category.slug, depending on what you prefer
+const {description, seo} = category;
+---
+
+<Layout title={`Category ${title}`} description={seo?.description}>
+  <h1>{title}</h1>
+  <p>{description}</p>
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-8">
+    {posts.map((post: Post) => <BlogCard {...post} />)}
+  </section>
+</Layout>
