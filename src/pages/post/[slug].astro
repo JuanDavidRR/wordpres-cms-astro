@@ -1,24 +1,27 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getAllPostsSlugs, getPostInfo } from "../../lib/wp";
+import { getPostInfo } from "../../lib/wp";
 import "../../styles/global.css";
 
-const slug = (Astro as { params: { slug: string } }).params.slug;
+const slug = Astro.params.slug;
 if (!slug) {
   return Astro.redirect("/404");
 }
 
-export async function getStaticPaths() {
-  const slugs = await getAllPostsSlugs();
-  return slugs.map((slug: string ) => ({ params: { slug } }));
-}
+//getStaticPaths method
+// export async function getStaticPaths() {
+//   const slugs = await getAllPostsSlugs();
+//   return slugs.map((slug: string ) => ({ params: { slug } }));
+// }
 
-const {title, content, seo} = await getPostInfo(slug);
+export const prerender = false;
+
+const { title, content, seo } = await getPostInfo(slug);
 ---
 
 <Layout title={title} description={seo?.description}>
   <article class="text-2xl max-w-2xl mx-auto">
     <h1>{title}</h1>
-    <div class="text-xl " set:html={content} />
+    <div class="text-xl" set:html={content} />
   </article>
 </Layout>

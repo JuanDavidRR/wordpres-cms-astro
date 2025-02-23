@@ -56,13 +56,13 @@ export const getLatestArticles = async ({
 //function to fetch the posts per category
 export const getArticlesByCategory = async ({
   perPage = 10,
-  category,
+  categoryId,
 }: {
   perPage?: number;
-  category: number;
+  categoryId: number;
 }) => {
   const response = await fetch(
-    `${apiUrl}/posts?categories=${category}&perPage=${perPage}&_embed`
+    `${apiUrl}/posts?categories=${categoryId}&perPage=${perPage}&_embed`
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch latest posts`);

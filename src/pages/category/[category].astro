@@ -5,7 +5,7 @@ import { getArticlesByCategory, getCategoryBySlug } from "../../lib/wp";
 import "../../styles/global.css";
 import type { Post } from "../../types";
 
-const categorySlug = Astro.params.category; // 'category' because your file is named [category].astro
+const categorySlug = Astro.params.category; 
 if (!categorySlug) {
   return Astro.redirect("/404");
 }
@@ -16,7 +16,7 @@ const category = await getCategoryBySlug(categorySlug);
 // Then, use the category ID to fetch posts
 const posts = await getArticlesByCategory({
   perPage: 3,
-  category: category.id,
+  categoryId: category.id,
 });
 const title = category.name; // Or category.slug, depending on what you prefer
 const {description, seo} = category;
