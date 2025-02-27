@@ -7,17 +7,34 @@ import "../styles/global.css";
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
-const { title, content } = await getPageInfo("pagina-ejemplo");
-const posts = await getLatestArticles({ perPage: 3 });
+
+const { title, content, seo } = await getPageInfo("home");
+// Fetch both sites in parallel
+const [postsFromSite1, postsFromSite2] = await Promise.all([
+  getLatestArticles({
+    perPage: 5,
+    apiUrl: "https://www.telesign.com",
+  }),
+  getLatestArticles({
+    perPage: 4,
+    apiUrl: "https://www.rollingstone.com",
+  }),
+]);
+
+// Merge both arrays
+const allPosts = [...postsFromSite1, ...postsFromSite2];
+
+// Sort posts by date (newest first)
+const sortedPosts = allPosts.sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+);
 ---
 
-<Layout title={title}>
-  <section class="container mx-auto px-4">
-    <h1>{title}</h1>
-    <section set:html={content} />
+<Layout title={title} description={seo?.description}>
+  <section class="max-w-6xl mx-auto px-4 mt-10">
+    <h2 class="text-3xl font-bold">Latest Technology Posts</h2>
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-8">
-      {posts.map((post: Post) => <BlogCard {...post} />)}
+      {sortedPosts.map((post: Post) => <BlogCard client:visible {...post} />)}
     </section>
-    <a href="/category/my-dog">Hola</a>
   </section>
 </Layout>

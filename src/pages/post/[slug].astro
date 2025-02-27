@@ -1,27 +1,70 @@
 ---
+import { Image } from "astro:assets";
+import { formatDate } from "../../helper";
 import Layout from "../../layouts/Layout.astro";
-import { getPostInfo } from "../../lib/wp";
+import { getPostInfo, getAuthorById, getAllPostsSlugs } from "../../lib/wp";
 import "../../styles/global.css";
 
+// 🚀 Generate static paths at build time
+export async function getStaticPaths() {
+  const slugs = await getAllPostsSlugs();
+  return slugs.map((slug: string) => ({ params: { slug } }));
+}
+
+// ✅ Fetch data at build time inside the component script
 const slug = Astro.params.slug;
 if (!slug) {
   return Astro.redirect("/404");
 }
 
-//getStaticPaths method
-// export async function getStaticPaths() {
-//   const slugs = await getAllPostsSlugs();
-//   return slugs.map((slug: string ) => ({ params: { slug } }));
-// }
+// Fetch post info
+const postData = await getPostInfo(slug);
 
-export const prerender = false;
+// Ensure data exists before destructuring
+if (!postData) {
+  return Astro.redirect("/404");
+}
 
-const { title, content, seo } = await getPostInfo(slug);
+const {
+  title,
+  content,
+  seo,
+  author,
+  categorySlug,
+  category,
+  date,
+  featuredMedia,
+} = postData;
+
+// Fetch author info
+const authorData = await getAuthorById(author);
+const authorName = authorData?.name || "Unknown Author";
 ---
 
-<Layout title={title} description={seo?.description}>
-  <article class="text-2xl max-w-2xl mx-auto">
-    <h1>{title}</h1>
+<Layout title={title} description={seo?.og_description}>
+  <article class="text-2xl max-w-4xl mx-auto flex flex-col gap-5 mt-10">
+    <p>Author: {authorName}</p>
+
+    <p>
+      Category: <a
+        class="text-blue-700"
+        href={`${import.meta.env.MY_DOMAIN}/category/${categorySlug}`}
+        >{category}</a
+      >
+    </p>
+    <p class="text-lg">{formatDate(date)}</p>
+
+    <Image
+      src={featuredMedia}
+      alt={title}
+      class="w-full object-cover"
+      decoding="async"
+      loading="lazy"
+      width="1000"
+      height="500"
+    />
+
     <div class="text-xl" set:html={content} />
   </article>
 </Layout>
+w

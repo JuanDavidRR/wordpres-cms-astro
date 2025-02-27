@@ -1,4 +1,7 @@
 ---
+import { Image } from "astro:assets";
+import { formatDate } from "../helper";
+
 interface Props {
   id: number;
   title: string;
@@ -8,25 +11,45 @@ interface Props {
   category?: string;
   slug: string;
   excerpt: string;
+  link: string;
 }
 
-const { title, featuredMedia, date, excerpt, category, slug } = Astro.props;
+const { title, featuredMedia, date, excerpt, category, slug, link } =
+  Astro.props;
 const domain = import.meta.env.MY_DOMAIN;
-
 ---
 
 <a href={`${domain}/post/${slug}`} class="block">
   <article
     class="bg-white rounded-2xl shadow-lg overflow-hidden transition-transform hover:scale-[1.03] relative"
   >
-    <img src={featuredMedia} alt={title} class="w-full h-48 object-cover" />
+    {
+      featuredMedia && (
+        <img
+          src={featuredMedia}
+          alt={title}
+          class="w-full h-48 object-cover"
+          decoding="async"
+          loading="lazy"
+          width="400"
+          height="200"
+        />
+      )
+    }
     <div class="p-4 flex flex-col gap-2">
       <h2 set:html={title} class="text-xl font-bold text-gray-900">{title}</h2>
-      <p class="text-sm text-gray-500">{date}</p>
-      <p
-        set:html={category}
-        class="text-white font-semibold absolute top-5 left-5 bg-gray-600 rounded-full py-1 px-4"
-      />
+      <p class="text-sm text-gray-500">{formatDate(date)}</p>
+
+      {
+        category && (
+          <p
+            set:html={category}
+            class="text-white font-semibold absolute top-5 left-5 bg-blue-700 rounded-full py-1 px-4"
+          >
+          </p>
+        )
+      }
+
       <div class="text-gray-700" set:html={excerpt} />
     </div>
   </article>

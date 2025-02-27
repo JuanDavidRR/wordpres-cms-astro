@@ -1,4 +1,5 @@
 ---
+import { mainMenu } from "../data";
 import "../styles/global.css";
 
 interface Pros {
@@ -6,8 +7,11 @@ interface Pros {
   description?: string;
 }
 
-const { title, description = "Just a blog created with WordPress and Astro" } =
-  Astro.props;
+const {
+  title,
+  description = "Just a blog created with WordPress and Astro",
+  seo = {},
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -15,12 +19,44 @@ const { title, description = "Just a blog created with WordPress and Astro" } =
   <head>
     <meta charset="UTF-8" />
     <meta name={title} content={description} />
-	<meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title} | My Blog</title>
   </head>
   <body>
+    <section class="bg-slate-950 text-center text-white py-16">
+      <div class="max-w-4xl mx-auto flex flex-col gap-10">
+        <h1 class="text-5xl font-extrabold uppercase">{title}</h1>
+        <section
+          class="text-xl"
+          set:html={seo?.description === "" || seo?.description === undefined
+            ? description
+            : seo.description}
+        />
+      </div>
+      <div class="flex gap-5 justify-center items-center mt-10">
+        <a
+          class="bg-blue-700 px-4 py-2 text-xl font-semibold rounded-lg hover:scale-[1.1] duration-300"
+          href="/about">About</a
+        >
+        <a
+          class=" bg-blue-700 px-4 py-2 text-xl font-semibold rounded-lg hover:scale-[1.1] duration-300"
+          href="/test">Test</a
+        >
+      </div>
+    </section>
+    <ul
+      class="bg-blue-700 text-xl text-white flex items-center justify-center gap-10"
+    >
+      {
+        mainMenu.map((item) => (
+          <a class="p-2 hover:bg-blue-900 duration-200" href={item.url}>
+            <li class="uppercase">{item.title}</li>
+          </a>
+        ))
+      }
+    </ul>
     <slot />
   </body>
 </html>
